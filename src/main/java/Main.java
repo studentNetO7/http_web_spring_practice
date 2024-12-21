@@ -1,13 +1,21 @@
 import java.io.BufferedOutputStream;
 import java.io.IOException;
+import java.util.Map;
 
 public class Main {
     public static void main(String[] args) {
+//        // Тестирование парсинга строки запроса
+//        System.out.println("Testing with test path: /messages?last=10&user=admin");
+//        String testPath = "/messages?last=10&user=admin";
+//        Map<String, String> result = Request.parseQueryParams(testPath);  // Ваш метод для парсинга
+//        System.out.println("Parsed query params: " + result);  // Логирование результата
         Server server = new Server();
 
         // Добавление обработчиков для различных путей и методов
         server.addHandler("GET", "/messages", (request, responseStream) -> {
-            String response = "GET request received for /messages";
+            // Извлекаем параметр из Query String
+            String last = request.getQueryParam("last");
+            String response = "GET request received for /messages with last parameter: " + (last != null ? last : "none");
             try {
                 sendSuccessResponse(responseStream, response);  // Отправка успешного ответа
             } catch (IOException e) {
@@ -15,8 +23,16 @@ public class Main {
             }
         });
 
+
         server.addHandler("POST", "/messages", (request, responseStream) -> {
+            // Получаем параметры из тела запроса
             String response = "POST request received for /messages with body: " + request.getBody();
+
+            // Также можно работать с параметрами из query string, если они присутствуют
+            String last = request.getQueryParam("last");
+            if (last != null) {
+                response += " with query parameter last=" + last;
+            }
             try {
                 sendSuccessResponse(responseStream, response);  // Отправка успешного ответа
             } catch (IOException e) {

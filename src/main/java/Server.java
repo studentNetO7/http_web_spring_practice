@@ -26,6 +26,7 @@ public class Server {
             System.out.println("Server started on port " + port);
             while (true) {
                 Socket clientSocket = serverSocket.accept();  // Ожидание подключения клиента
+                System.out.println("New connection from " + clientSocket.getInetAddress());  // Вывод о подключении клиента
                 threadPool.submit(new ConnectionHandler(clientSocket, handlers));  // Обработка запроса клиента в пуле потоков
             }
         } catch (IOException e) {
