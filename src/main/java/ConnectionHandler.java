@@ -33,6 +33,8 @@ public class ConnectionHandler implements Runnable {
 
             String method = parts[0];
             String path = parts[1];
+            System.out.println("Method: " + method); // Логирование метода
+            System.out.println("Path: " + path); // Логирование пути
 
             // Парсим заголовки запроса
             Map<String, String> headers = parseHeaders(in);
@@ -45,14 +47,23 @@ public class ConnectionHandler implements Runnable {
 
             // Создаём объект запроса
             Request request = new Request(method, path, headers, body);
+            // Логируем все параметры запроса
+            System.out.println("Query Params: " + request.getQueryParams());
 
-            // Ищем подходящий обработчик для метода и пути
-            Handler handler = handlers.getOrDefault(method, new ConcurrentHashMap<>()).get(path);
+
+            // Извлекаем путь без параметров для добавления обработчика
+            String pathWithoutQuery = path.split("\\?")[0];
+
+            // Ищем подходящий обработчик для метода и пути (без параметров)
+            Handler handler = handlers.getOrDefault(method, new ConcurrentHashMap<>()).get(pathWithoutQuery);
             if (handler != null) {
+                System.out.println("Handler found for path: " + path);  // Логируем найденный обработчик
                 handler.handle(request, out);  // Вызываем обработчик
             } else {
+                System.out.println("No handler found for path: " + path);  // Логируем отсутствие обработчика
                 sendNotFoundResponse(out);  // Если обработчик не найден, возвращаем 404
             }
+
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
